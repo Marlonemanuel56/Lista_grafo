@@ -1,4 +1,4 @@
-EXEC = grafo
+EXEC = run_grafo
 
 CXX = g++
 
