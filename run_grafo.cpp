@@ -18,12 +18,11 @@ public:
         matrizAdj.resize(n, vector<int>(n, 0));
     }
 
-    void adicionarAresta(int u, int v) {
-        matrizAdj[u][v] = 1;
-        matrizAdj[v][u] = 1;
+    void adicionarAresta(int u, int v, int peso) {
+        matrizAdj[u][v] = peso;
+        matrizAdj[v][u] = peso;
     }
 
-    
     void exibirMatrizAdj() {
         for (int i = 0; i < numVertices; i++) {
             for (int j = 0; j < numVertices; j++) {
@@ -46,8 +45,9 @@ public:
 
     void adicionarAresta(int u, int v) {
         listaAdj[u].push_back(v);
+        listaAdj[v].push_back(u);
     }
-    
+
     void exibirListaAdj() {
         for (int i = 0; i < numVertices; i++) {
             cout << i << ": ";
@@ -77,15 +77,16 @@ void carregarGrafo(string nomeArquivo, GrafoMatriz &grafoMatriz, GrafoLista &gra
             int peso;
             arquivo >> peso;
             if (peso != 0) {
-                grafoMatriz.adicionarAresta(i, j);
-                grafoLista.adicionarAresta(i, j);
+                grafoMatriz.adicionarAresta(i, j, peso);
+                if (i < j) {
+                    grafoLista.adicionarAresta(i, j);
+                }
             }
         }
     }
 
     arquivo.close();
 }
-
 
 bool bfs(const GrafoLista &grafo, int s, int t, vector<int> &caminho) {
     vector<bool> visitado(grafo.numVertices, false);
@@ -155,10 +156,25 @@ void dfs(const GrafoLista &grafo, int s) {
     cout << endl;
 }
 
-int main() {
-    GrafoMatriz grafoMatriz(0); 
+void mostrarUso() {
+    cout << "Uso: ./programa nome_do_arquivo vertice_inicial vertice_final\n";
+    cout << "Exemplo: ./programa grafo.txt 0 4\n";
+}
+
+int main(int argc, char* argv[]) {
+    GrafoMatriz grafoMatriz(0);
     GrafoLista grafoLista(0);
-    carregarGrafo("pcv4.txt", grafoMatriz, grafoLista);
+    
+    if (argc != 4) {
+        mostrarUso();
+        return 1;
+    }
+
+    string nomeArquivo = argv[1];
+    int s = stoi(argv[2]);
+    int t = stoi(argv[3]);
+
+    carregarGrafo(nomeArquivo, grafoMatriz, grafoLista);
 
     cout << "Matriz de Adjacência:\n";
     grafoMatriz.exibirMatrizAdj();
@@ -166,7 +182,6 @@ int main() {
     cout << "\nLista de Adjacência:\n";
     grafoLista.exibirListaAdj();
 
-    int s = 0, t = 3;
     cout << "\nBusca em Largura (BFS):\n";
     imprimirCaminhoBFS(grafoLista, s, t);
 
